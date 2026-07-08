@@ -106,7 +106,19 @@ app.get('/expense/total', middleware, (req, res) => {
     const totalAmount = userExpenses.reduce((total, expense) => total + expense.amount, 0);
     res.status(200).json({totalAmount});
 })
-app.get('/expense/summary', middleware, (req, res) => {})
+app.get('/expense/summary', middleware, (req, res) => {
+    const userId = req.userId;
+    const userExpenses = expenses.filter(e => e.userId === userId);
+
+    const summary = userExpenses.reduce((acc, expense) => {
+        if(!acc[expense.category]) {
+            acc[expense.category] = 0;
+        }
+        acc[expense.category] += expense.amount;
+        return acc;
+    }, {});
+    res.status(200).json({summary});
+})
 
 //update endpoints:
 app.put('/expense/:id', middleware, (req, res) => {
