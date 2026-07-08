@@ -50,6 +50,23 @@ app.post('/signin', (req, res) => {
     res.status(200).json({ message: 'User signed in successfully', token });
 });
 
+app.post('/expense', middleware, (req, res) => {})
+
+
+// read endpoints: 
+app.get('/', middleware, (req, res) => {})
+
+app.get('/expense', middleware, (req, res) => {})
+app.get('/expense/:id', middleware, (req, res) => {})
+
+app.get('/expense/total', middleware, (req, res) => {})
+app.get('/expense/summary', middleware, (req, res) => {})
+
+//update endpoints:
+app.put('/expense/:id', middleware, (req, res) => {})
+
+//delete endpoints:
+app.delete('/expense/:id', middleware, (req, res) => {})
 
 app.listen(port, () => {
   console.log(`Server is running on http://localhost:${port}`);
