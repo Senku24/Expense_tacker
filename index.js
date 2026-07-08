@@ -84,14 +84,59 @@ app.get('/signup', (req, res) => {
 app.get('/signin', (req, res) => {
     res.send('/Users/nixonpaul/Code_learn/WebDev26/expense_tracker/Expense_tacker/frontend/signin.html');
 });
-app.get('/expense', middleware, (req, res) => {})
-app.get('/expense/:id', middleware, (req, res) => {})
+app.get('/expense', middleware, (req, res) => {
+    const userId = req.userId;
+    const userExpenses = expenses.filter(e => e.userId === userId);
+    res.status(200).json({expenses: userExpenses});
+})
+app.get('/expense/:id', middleware, (req, res) => {
 
-app.get('/expense/total', middleware, (req, res) => {})
+    const userId = req.userId;
+    const expenseId = parseInt(req.params.id);
+    const expense = expenses.find(e => e.id === expenseId && e.userId === userId);
+    if(!expense) {
+        return res.status(401).json({message: 'expense not found or you are not authorized to view this expense'});
+    }
+    res.status(200).json({expense});
+})
+
+app.get('/expense/total', middleware, (req, res) => {
+    const userId = req.userId;
+    const userExpenses = expenses.filter(e => e.userId === userId);
+    const totalAmount = userExpenses.reduce((total, expense) => total + expense.amount, 0);
+    res.status(200).json({totalAmount});
+})
 app.get('/expense/summary', middleware, (req, res) => {})
 
 //update endpoints:
-app.put('/expense/:id', middleware, (req, res) => {})
+app.put('/expense/:id', middleware, (req, res) => {
+    const userId = req.userId;
+    const expenseId = parseInt(req.params.id);
+    const { title, category, amount, date } = req.body;
+
+    const expenseIndex = expenses.findIndex(expense => expense.id === expenseId && expense.userId === userId);
+    if(expenseIndex === -1){
+        return res.status(401).json({message: 'expense not found or you are not authorized to update this expense'});
+    }
+    if (!title || !category || amount == null || !date || !userId) {
+        return res.status(400).json({
+        message: "All fields are required (title, category, amount, date, userId)."
+    });
+
+    const updatedExpense = {
+        userId: userId,
+        id: expenseId,
+        title,
+        category,
+        amount: Number(amount),
+        date
+    };
+    
+    expenses[expenseIndex] = updatedExpense;
+    res.status(200).json({message: 'expense updated successfully', expense: updatedExpense})
+
+}
+})
 
 //delete endpoints:
 app.delete('/expense/:id', middleware, (req, res) => {
